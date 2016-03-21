@@ -48,6 +48,9 @@ public class TrafficCop {
             case RequestDTO.GET_COACH_DATA:
                 resp = coachUtil.getCoachData(req.getCoachID());
                 break;
+                case RequestDTO.GET_SESSIONS_IN_PERIOD:
+                resp = playerUtil.getPlayerSessionsWithinDays(req.getPlayerID(), req.getDays());
+                break;
             case RequestDTO.GET_PLAYER_DATA:
                 resp = playerUtil.getPlayerData(req.getPlayerID());
                 break;

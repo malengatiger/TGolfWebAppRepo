@@ -35,7 +35,8 @@ public class RequestDTO {
             GET_GOLF_COURSES_BY_LOCATION = 23,
             GET_ALL_GOLF_COURSES = 24,
             UPDATE_PRACTICE_SESSION = 25,
-            GET_ALL_COACHES = 26;
+            GET_ALL_COACHES = 26,
+            GET_SESSIONS_IN_PERIOD = 27;
     
     private int requestType;
     private Integer playerID,
@@ -45,7 +46,7 @@ public class RequestDTO {
             clubUsedID,
             holeID, holeStatID, videoUploadID;
     private Double latitude,longitude;
-    private Integer radius;
+    private Integer radius, days;
     private String email, password;
     private PlayerDTO player;
     private CoachDTO coach;
@@ -55,6 +56,14 @@ public class RequestDTO {
     private HoleDTO hole;
 
     private boolean zipResponse;
+
+    public Integer getDays() {
+        return days;
+    }
+
+    public void setDays(Integer days) {
+        this.days = days;
+    }
 
     public Double getLatitude() {
         return latitude;

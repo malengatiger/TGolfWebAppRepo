@@ -38,8 +38,12 @@ import javax.xml.bind.annotation.XmlTransient;
 @NamedQueries({
     @NamedQuery(name = "PracticeSession.findByPlayer", 
             query = "SELECT p FROM PracticeSession p where p.player.playerID = :playerID order by p.sessionDate desc"),
+    
     @NamedQuery(name = "PracticeSession.findOpenByPlayer", 
             query = "SELECT p FROM PracticeSession p where p.player.playerID = :playerID and p.closed = FALSE"),
+    
+    @NamedQuery(name = "PracticeSession.getPlayerSessionsInPeriod", 
+            query = "SELECT p FROM PracticeSession p where p.player.playerID = :playerID and p.closed = TRUE and p.sessionDate BETWEEN :fromDate and :toDate"),
     
     
 })
@@ -65,7 +69,7 @@ public class PracticeSession implements Serializable {
     @Column(name = "overPar")
     private Integer overPar;
     @Column(name = "par")
-    private Boolean par;
+    private Integer par;
     @Column(name = "closed")
     private Boolean closed;
     @Column(name = "totalMistakes")
@@ -157,11 +161,11 @@ public class PracticeSession implements Serializable {
         this.overPar = overPar;
     }
 
-    public Boolean getPar() {
+    public Integer getPar() {
         return par;
     }
 
-    public void setPar(Boolean par) {
+    public void setPar(Integer par) {
         this.par = par;
     }
 

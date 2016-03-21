@@ -23,7 +23,6 @@ import com.boha.golfpractice.dto.PlayerDTO;
 import com.boha.golfpractice.dto.PracticeSessionDTO;
 import com.boha.golfpractice.dto.ShotShapeDTO;
 import com.boha.golfpractice.transfer.ResponseDTO;
-import static com.boha.golfpractice.util.CoachUtil.log;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -36,7 +35,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
-import org.joda.time.DateTimeUtils;
+import org.joda.time.DateTime;
 
 /**
  *
@@ -375,6 +374,32 @@ public class PlayerUtil {
             
         } catch (Exception e) {
             log.log(Level.SEVERE, "Failed", e);
+            throw new DataException();
+        }
+        return resp;
+    }
+    
+    public ResponseDTO getPlayerSessionsWithinDays(Integer playerID, Integer days) throws DataException {
+        ResponseDTO resp = new ResponseDTO();
+        try {
+            if (days == null) {
+                days = 90;
+            }
+            DateTime now = new DateTime();
+            DateTime then = now.minusDays(days);
+            
+            Query q = em.createNamedQuery("PracticeSession.getPlayerSessionsInPeriod",PracticeSession.class);
+            q.setParameter("playerID", playerID);
+            q.setParameter("fromDate", then.toDate());
+            q.setParameter("toDate", now.toDate());
+            List<PracticeSession> list = q.getResultList();
+            for (PracticeSession ps : list) {
+                resp.getPracticeSessionList().add(new PracticeSessionDTO(ps));
+            }
+            resp.setMessage("PracticeSessions in period listed");
+            
+        } catch (Exception e) {
+            log.log(Level.SEVERE, e.getMessage(),e);
             throw new DataException();
         }
         return resp;
