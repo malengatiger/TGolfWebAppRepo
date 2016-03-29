@@ -250,6 +250,7 @@ public class PlayerUtil {
             throw new DataException();
         }
 
+        resp.setMessage("Player's PracticeSessions found: " + resp.getPracticeSessionList().size());
         return resp;
     }
 

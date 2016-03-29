@@ -32,9 +32,8 @@ import javax.xml.bind.annotation.XmlTransient;
 @Table(name = "club")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Club.findAll", query = "SELECT c FROM Club c order by c.clubName"),
-    @NamedQuery(name = "Club.findByClubID", query = "SELECT c FROM Club c WHERE c.clubID = :clubID"),
-    @NamedQuery(name = "Club.findByClubName", query = "SELECT c FROM Club c WHERE c.clubName = :clubName")})
+    @NamedQuery(name = "Club.findAll", query = "SELECT c FROM Club c order by c.sequence")
+})
 public class Club implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -48,6 +47,8 @@ public class Club implements Serializable {
     @Size(min = 1, max = 45)
     @Column(name = "clubName")
     private String clubName;
+    @Column(name = "sequence")
+    private Integer sequence;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "club", fetch = FetchType.EAGER)
     private List<ClubUsed> clubUsedList;
 
@@ -82,6 +83,14 @@ public class Club implements Serializable {
     @XmlTransient
     public List<ClubUsed> getClubUsedList() {
         return clubUsedList;
+    }
+
+    public Integer getSequence() {
+        return sequence;
+    }
+
+    public void setSequence(Integer sequence) {
+        this.sequence = sequence;
     }
 
     public void setClubUsedList(List<ClubUsed> clubUsedList) {

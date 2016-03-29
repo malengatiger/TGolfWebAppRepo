@@ -9,8 +9,6 @@ package com.boha.golfpractice.util;
  *
  * @author aubreyM
  */
-
-
 import com.boha.golfpractice.data.Hole;
 import com.boha.golfpractice.dto.GolfCourseDTO;
 import com.boha.golfpractice.dto.HoleDTO;
@@ -51,7 +49,6 @@ public class GolfCourseWorkerBee {
     public ResponseDTO getGolfCoursesWithinRadius(double latitude, double longitude,
             int radius, int type)
             throws Exception {
-        long start = System.currentTimeMillis();
         if (conn == null || conn.isClosed()) {
             conn = em.unwrap(Connection.class);
             log.log(Level.INFO, "..........SQL Connection unwrapped from EntityManager");
@@ -77,10 +74,6 @@ public class GolfCourseWorkerBee {
         preparedStatement.setDouble(4, latitude);
         preparedStatement.setInt(5, radius);
         resultSet = preparedStatement.executeQuery();
-        long end = System.currentTimeMillis();
-        
-        log.log(Level.INFO, "AlertWorkerBee -  courses by radius elapsed: {0}", 
-                new Object[]{Elapsed.getElapsed(start, end)});
         return buildCourseList(resultSet);
 
     }
@@ -105,24 +98,25 @@ public class GolfCourseWorkerBee {
             dto.setLatitude(lat);
             dto.setLongitude(lng);
             dto.setDistance(dist);
-            
+
             q.setParameter("golfCourseID", id);
             List<Hole> list = q.getResultList();
             if (!list.isEmpty()) {
                 for (Hole hole : list) {
                     dto.getHoleList().add(new HoleDTO(hole));
                 }
-   
+
             }
-                       
+
             resp.getGolfCourseList().add(dto);
-            
+
         }
         Collections.sort(resp.getGolfCourseList());
         long end = System.currentTimeMillis();
-        log.log(Level.INFO, "GolfCourseWorkerBee -  courses by radius found: {0} elapsed: {1}", 
+        log.log(Level.INFO, "GolfCourseWorkerBee -  courses by radius found: {0} elapsed: {1}",
                 new Object[]{resp.getGolfCourseList().size(), Elapsed.getElapsed(start, end)});
         resultSet.close();
+        resp.setMessage("Golf courses found: " + resp.getGolfCourseList().size());
         return resp;
     }
 

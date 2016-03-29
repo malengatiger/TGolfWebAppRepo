@@ -56,6 +56,7 @@ public class PlayerDTO implements Serializable {
         this.pin = a.getPin();
         this.photoUrl = a.getPhotoUrl();
         this.dateRegistered = a.getDateRegistered().getTime();
+        this.gender = a.getGender();
         
         if (a.getPracticeSessionList() != null) {
             practiceSessionList = new ArrayList<>();

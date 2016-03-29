@@ -8,9 +8,6 @@ package com.boha.golfpractice.dto;
 import com.boha.golfpractice.data.Club;
 import java.io.Serializable;
 import java.util.List;
-import javax.persistence.CascadeType;
-import javax.persistence.FetchType;
-import javax.persistence.OneToMany;
 import javax.xml.bind.annotation.XmlTransient;
 
 /**
@@ -22,7 +19,7 @@ public class ClubDTO implements Serializable {
     private static final long serialVersionUID = 1L;
     private Integer clubID;
     private String clubName;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "club", fetch = FetchType.EAGER)
+    private Integer sequence;
     private List<ClubUsedDTO> clubUsedList;
 
     public ClubDTO() {
@@ -31,6 +28,15 @@ public class ClubDTO implements Serializable {
     public ClubDTO(Club a) {
         this.clubID = a.getClubID();
         this.clubName = a.getClubName();
+        this.sequence = a.getSequence();
+    }
+
+    public Integer getSequence() {
+        return sequence;
+    }
+
+    public void setSequence(Integer sequence) {
+        this.sequence = sequence;
     }
 
     public Integer getClubID() {

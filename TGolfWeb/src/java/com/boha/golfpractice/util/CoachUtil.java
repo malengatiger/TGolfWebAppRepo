@@ -109,7 +109,7 @@ public class CoachUtil {
 
             }
 
-            resp.setMessage("Coach signed in");
+            resp.setMessage("Coach signed in, player data retrieved");
 
         } catch (Exception e) {
             log.log(Level.SEVERE, "Failed", e);
