@@ -25,6 +25,7 @@ public class ClubUsedDTO implements Serializable {
 
     public ClubUsedDTO(ClubUsed a) {
         this.clubUsedID = a.getClubUsedID();
+        
         if (a.getClub() != null) {
             club = new ClubDTO(a.getClub());
         }

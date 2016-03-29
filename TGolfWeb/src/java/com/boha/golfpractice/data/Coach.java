@@ -45,6 +45,15 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Coach.findByDateRegistered", query = "SELECT c FROM Coach c WHERE c.dateRegistered = :dateRegistered")})
 public class Coach implements Serializable {
 
+    @Column(name = "gender")
+    private Short gender;
+    @OneToMany(mappedBy = "coach", fetch = FetchType.EAGER)
+    private List<PracticeSession> practiceSessionList;
+
+    @Size(max = 256)
+    @Column(name = "photoUrl")
+    private String photoUrl;
+
     @OneToMany(mappedBy = "coach", fetch = FetchType.EAGER)
     private List<GcmDevice> gcmDeviceList;
 
@@ -195,6 +204,31 @@ public class Coach implements Serializable {
 
     public void setGcmDeviceList(List<GcmDevice> gcmDeviceList) {
         this.gcmDeviceList = gcmDeviceList;
+    }
+
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
+    }
+
+    public Short getGender() {
+        return gender;
+    }
+
+    public void setGender(Short gender) {
+        this.gender = gender;
+    }
+
+    @XmlTransient
+    public List<PracticeSession> getPracticeSessionList() {
+        return practiceSessionList;
+    }
+
+    public void setPracticeSessionList(List<PracticeSession> practiceSessionList) {
+        this.practiceSessionList = practiceSessionList;
     }
     
 }

@@ -19,6 +19,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -95,6 +96,7 @@ public class GolfCourseWorkerBee {
             String cellphone = resultSet.getString("cellphone");
             Double lat = resultSet.getDouble("latitude");
             Double lng = resultSet.getDouble("longitude");
+            Double dist = resultSet.getDouble("distance");
             GolfCourseDTO dto = new GolfCourseDTO();
             dto.setCellphone(cellphone);
             dto.setEmail(email);
@@ -102,6 +104,7 @@ public class GolfCourseWorkerBee {
             dto.setGolfCourseName(name);
             dto.setLatitude(lat);
             dto.setLongitude(lng);
+            dto.setDistance(dist);
             
             q.setParameter("golfCourseID", id);
             List<Hole> list = q.getResultList();
@@ -115,6 +118,7 @@ public class GolfCourseWorkerBee {
             resp.getGolfCourseList().add(dto);
             
         }
+        Collections.sort(resp.getGolfCourseList());
         long end = System.currentTimeMillis();
         log.log(Level.INFO, "GolfCourseWorkerBee -  courses by radius found: {0} elapsed: {1}", 
                 new Object[]{resp.getGolfCourseList().size(), Elapsed.getElapsed(start, end)});

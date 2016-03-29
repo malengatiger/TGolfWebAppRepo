@@ -19,6 +19,7 @@ import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -45,6 +46,13 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Player.findByPin", query = "SELECT p FROM Player p WHERE p.pin = :pin"),
     @NamedQuery(name = "Player.findByDateRegistered", query = "SELECT p FROM Player p WHERE p.dateRegistered = :dateRegistered")})
 public class Player implements Serializable {
+
+    @Size(max = 256)
+    @Column(name = "photoUrl")
+    private String photoUrl;
+
+    @Column(name = "gender")
+    private Short gender;
 
     @OneToMany(mappedBy = "player", fetch = FetchType.EAGER)
     private List<GcmDevice> gcmDeviceList;
@@ -80,8 +88,10 @@ public class Player implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateRegistered;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "player", fetch = FetchType.EAGER)
+    @OrderBy("dateTaken desc")
     private List<VideoUpload> videoUploadList;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "player", fetch = FetchType.EAGER)
+    @OrderBy("sessionDate desc")
     private List<PracticeSession> practiceSessionList;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "player", fetch = FetchType.EAGER)
     private List<CoachPlayer> coachPlayerList;
@@ -218,6 +228,22 @@ public class Player implements Serializable {
 
     public void setGcmDeviceList(List<GcmDevice> gcmDeviceList) {
         this.gcmDeviceList = gcmDeviceList;
+    }
+
+    public Short getGender() {
+        return gender;
+    }
+
+    public void setGender(Short gender) {
+        this.gender = gender;
+    }
+
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
     }
     
 }

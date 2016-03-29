@@ -15,6 +15,7 @@ import com.boha.golfpractice.data.HoleStat;
 import com.boha.golfpractice.data.Player;
 import com.boha.golfpractice.data.PracticeSession;
 import com.boha.golfpractice.data.ShotShape;
+import com.boha.golfpractice.data.VideoUpload;
 import com.boha.golfpractice.dto.ClubDTO;
 import com.boha.golfpractice.dto.ClubUsedDTO;
 import com.boha.golfpractice.dto.CoachDTO;
@@ -22,10 +23,13 @@ import com.boha.golfpractice.dto.HoleStatDTO;
 import com.boha.golfpractice.dto.PlayerDTO;
 import com.boha.golfpractice.dto.PracticeSessionDTO;
 import com.boha.golfpractice.dto.ShotShapeDTO;
+import com.boha.golfpractice.dto.VideoUploadDTO;
 import com.boha.golfpractice.transfer.ResponseDTO;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Stateless;
@@ -49,18 +53,26 @@ public class PlayerUtil {
     EntityManager em;
     static final Logger log = Logger.getLogger(PlayerUtil.class.getSimpleName());
 
-    public ResponseDTO register(PlayerDTO p) throws DataException {
+    public ResponseDTO update(PlayerDTO p) throws DataException {
         ResponseDTO resp = new ResponseDTO();
         try {
-            Player c = new Player();
-            c.setFirstName(p.getFirstName());
-            c.setLastName(p.getLastName());
-            c.setCellphone(p.getCellphone());
-            c.setEmail(p.getEmail());
-            c.setPin(p.getPin());
-            c.setDateRegistered(new Date());
-            em.persist(c);
-            em.flush();
+            Player c = em.find(Player.class, p.getPlayerID());
+            if (p.getFirstName() != null) {
+                c.setFirstName(p.getFirstName());
+            }
+            if (p.getLastName() != null) {
+                c.setLastName(p.getLastName());
+            }
+            if (p.getCellphone() != null) {
+                c.setCellphone(p.getCellphone());
+            }
+            if (p.getEmail() != null) {
+                c.setEmail(p.getEmail());
+            }
+            if (p.getPin() != null) {
+                c.setPin(p.getPin());
+            }
+            em.merge(c);
             resp = getClubsAndShotShape();
             resp.getPlayerList().add(new PlayerDTO(c));
 
@@ -93,25 +105,34 @@ public class PlayerUtil {
         return resp;
     }
 
-    public ResponseDTO signIn(String email, String password) throws DataException {
+    public ResponseDTO signIn(String email, String password, Boolean isExisting) throws DataException {
         ResponseDTO resp = new ResponseDTO();
         try {
+            resp = getClubsAndShotShape();
             Query q = em.createNamedQuery("Player.signIn", Player.class);
             q.setParameter("email", email);
             q.setParameter("pin", password);
             q.setMaxResults(1);
             List<Player> list = q.getResultList();
             if (list.isEmpty()) {
-                PlayerDTO m = new PlayerDTO();
-                m.setEmail(email);
-                m.setPin(password);
-                resp = register(m);
-                return resp;
+                if (isExisting == false) {
+                    Player m = new Player();
+                    m.setEmail(email);
+                    m.setPin(password);
+                    m.setDateRegistered(new Date());
+                    em.persist(m);
+                    return resp;
+                } else {
+                    resp.setStatusCode(StatusCode.ERROR_SIGN_IN);
+                    resp.setMessage(StatusCode.ERROR_SIGN_IN_MSG);
+                    return resp;
+                }
 
+            } else {
+                PlayerDTO p = new PlayerDTO(list.get(0));
+                resp.getPlayerList().add(p);
+                resp.setPracticeSessionList(getPlayerData(p.getPlayerID()).getPracticeSessionList());
             }
-            resp = getClubsAndShotShape();
-            resp.getPlayerList().add(new PlayerDTO(list.get(0)));
-            resp.setPracticeSessionList(getPlayerData(list.get(0).getPlayerID()).getPracticeSessionList());
 
             resp.setMessage("Player signed in");
             log.log(Level.INFO, "Player signed in");
@@ -122,6 +143,68 @@ public class PlayerUtil {
         }
 
         return resp;
+    }
+
+    public ResponseDTO editPlayer(PlayerDTO player, Integer coachID) throws DataException {
+        ResponseDTO resp = new ResponseDTO();
+        try {
+            Player m = new Player();
+            if (player.getPlayerID() != null) {
+                m = em.find(Player.class, player.getPlayerID());
+            }
+            if (player.getFirstName() != null) {
+                m.setFirstName(player.getFirstName());
+            }
+            if (player.getLastName() != null) {
+                m.setLastName(player.getLastName());
+            }
+            if (player.getCellphone() != null) {
+                m.setCellphone(player.getCellphone());
+            }
+            if (player.getEmail() != null) {
+                m.setEmail(player.getEmail());
+            }
+            if (player.getGender() != null) {
+                m.setGender(player.getGender());
+            }
+            if (player.getPhotoUrl() != null) {
+                m.setPhotoUrl(player.getPhotoUrl());
+            }
+
+            if (player.getPlayerID() != null) {
+                em.merge(m);
+            } else {
+                m.setPin(getRandomPin());
+                m.setDateRegistered(new Date());
+                em.persist(m);
+                em.flush();
+            }
+            resp.getPlayerList().add(new PlayerDTO(m));
+            if (coachID != null) {
+                addCoach(m.getPlayerID(), coachID);
+            }
+        } catch (Exception e) {
+            log.log(Level.SEVERE, "Failed to add player", e);
+            throw new DataException();
+        }
+        resp.setMessage("Player added or updated: " + player.getFirstName());
+        return resp;
+    }
+
+    public String getRandomPin() {
+        StringBuilder sb = new StringBuilder();
+        Random rand = new Random(System.currentTimeMillis());
+        int x = rand.nextInt(9);
+        if (x == 0) {
+            x = 3;
+        }
+        sb.append(x);
+        sb.append(rand.nextInt(9));
+        sb.append(rand.nextInt(9));
+        sb.append(rand.nextInt(9));
+        sb.append(rand.nextInt(9));
+        sb.append(rand.nextInt(9));
+        return sb.toString();
     }
 
     public ResponseDTO getPlayerData(Integer playerID) throws DataException {
@@ -170,7 +253,7 @@ public class PlayerUtil {
         return resp;
     }
 
-    public ResponseDTO addPracticeSession(PracticeSessionDTO ps) throws DataException {
+    public ResponseDTO editPracticeSession(PracticeSessionDTO ps) throws DataException {
         ResponseDTO resp = new ResponseDTO();
         try {
             PracticeSession s = new PracticeSession();
@@ -178,7 +261,12 @@ public class PlayerUtil {
                 s = em.find(PracticeSession.class, ps.getPracticeSessionID());
             }
             s.setGolfCourse(em.find(GolfCourse.class, ps.getGolfCourseID()));
-            s.setPlayer(em.find(Player.class, ps.getPlayerID()));
+            if (ps.getPlayerID() != null) {
+                s.setPlayer(em.find(Player.class, ps.getPlayerID()));
+            }
+            if (ps.getCoachID() != null) {
+                s.setCoach(em.find(Coach.class, ps.getCoachID()));
+            }
             s.setNumberOfHoles(ps.getNumberOfHoles());
             s.setOverPar(ps.getOverPar());
             s.setPar(ps.getPar());
@@ -186,26 +274,26 @@ public class PlayerUtil {
             s.setTotalStrokes(ps.getTotalStrokes());
             s.setUnderPar(ps.getUnderPar());
             s.setTotalMistakes(ps.getTotalMistakes());
+
             if (ps.getPracticeSessionID() == null) {
                 em.persist(s);
                 em.flush();
+                log.log(Level.INFO, "####### Practice session has been persisted");
+
             } else {
                 em.merge(s);
+                log.log(Level.WARNING, "####### Practice session has been merged");
             }
-            ResponseDTO w = null;
             if (!ps.getHoleStatList().isEmpty()) {
                 for (HoleStatDTO hs : ps.getHoleStatList()) {
                     hs.setPracticeSessionID(s.getPracticeSessionID());
                 }
-                w = addHoleStatList(ps.getHoleStatList());
             }
             PracticeSessionDTO m = new PracticeSessionDTO(s);
-            if (w != null) {
-                m.setHoleStatList(w.getHoleStatList());
-            }
+            m.setHoleStatList(editHoleStatList(ps.getHoleStatList()));
+
             resp.getPracticeSessionList().add(m);
             resp.setMessage("PracticeSession added or updated");
-            log.log(Level.INFO, "####### Practice session has been added or updated");
         } catch (Exception e) {
             log.log(Level.SEVERE, "Failed", e);
             throw new DataException();
@@ -214,29 +302,59 @@ public class PlayerUtil {
         return resp;
     }
 
-    public ResponseDTO addHoleStatList(List<HoleStatDTO> list) throws DataException {
+    public ResponseDTO addVideo(VideoUploadDTO hs) throws DataException {
         ResponseDTO resp = new ResponseDTO();
-        for (HoleStatDTO hs : list) {
-            ResponseDTO w = addHoleStat(hs);
-            resp.getHoleStatList().add(w.getHoleStatList().get(0));
+        try {
+            VideoUpload vid = new VideoUpload();
+            if (hs.getPracticeSessionID() != null) {
+                vid.setPracticeSession(em.find(PracticeSession.class, hs.getPracticeSessionID()));
+            }
+            if (hs.getPlayerID() != null) {
+                vid.setPlayer(em.find(Player.class, hs.getPlayerID()));
+            }
+
+            vid.setDateTaken(new Date(hs.getDateTaken()));
+            vid.setUrl(hs.getUrl());
+            vid.setYouTubeID(hs.getYouTubeID());
+            em.persist(hs);
+            em.flush();
+            resp.getVideoUploadList().add(new VideoUploadDTO(vid));
+            resp.setMessage("Video metadata uploaded to DB");
+            log.log(Level.INFO, "*** Video added ");
+
+        } catch (Exception e) {
+            log.log(Level.SEVERE, "Failed", e);
+            throw new DataException();
         }
+
         return resp;
     }
 
-    public ResponseDTO addHoleStat(HoleStatDTO hs) throws DataException {
-        ResponseDTO resp = new ResponseDTO();
+    private List<HoleStatDTO> editHoleStatList(List<HoleStatDTO> list) throws DataException {
+        List<HoleStatDTO> holeStatList = new ArrayList<>();
+        for (HoleStatDTO hs : list) {
+            holeStatList.add(editHoleStat(hs));
+        }
+        return holeStatList;
+    }
+
+    private HoleStatDTO editHoleStat(HoleStatDTO hs) throws DataException {
+        HoleStatDTO dto = new HoleStatDTO();
         try {
             HoleStat holeStat = new HoleStat();
             if (hs.getHoleStatID() != null) {
                 holeStat = em.find(HoleStat.class, hs.getHoleStatID());
+            } else {
+                holeStat.setPracticeSession(em.find(PracticeSession.class, hs.getPracticeSessionID()));
+                holeStat.setHole(em.find(Hole.class, hs.getHole().getHoleID()));
             }
-            holeStat.setPracticeSession(em.find(PracticeSession.class, hs.getPracticeSessionID()));
+
             holeStat.setDistanceToPin(hs.getDistanceToPin());
             holeStat.setFairwayBunkerHit(hs.getFairwayBunkerHit());
             holeStat.setFairwayHit(hs.getFairwayHit());
             holeStat.setGreenInRegulation(hs.getGreenInRegulation());
             holeStat.setGreensideBunkerHit(hs.getGreensideBunkerHit());
-            holeStat.setHole(em.find(Hole.class, hs.getHole().getHoleID()));
+
             holeStat.setInRough(hs.getInRough());
             holeStat.setInWater(hs.getInWater());
             holeStat.setNumberOfPutts(hs.getNumberOfPutts());
@@ -244,62 +362,82 @@ public class PlayerUtil {
             holeStat.setRemarks(hs.getRemarks());
             holeStat.setScore(hs.getScore());
             holeStat.setLengthOfPutt(hs.getLengthOfPutt());
-            
+
             holeStat.setMistakes(hs.getMistakes());
             if (hs.getHoleStatID() == null) {
                 em.persist(holeStat);
                 em.flush();
+                log.log(Level.INFO, "*** holeStat persisted OK, holeNumber: {0}", holeStat.getHole().getHoleNumber());
             } else {
                 em.merge(holeStat);
+                log.log(Level.WARNING, "*** holeStat merged OK, holeNumber: {0}", holeStat.getHole().getHoleNumber());
             }
+            dto = new HoleStatDTO(holeStat);
             if (hs.getClubUsedList() != null) {
+                log.log(Level.INFO, "*** clubs used: {0}", hs.getClubUsedList().size());
                 for (ClubUsedDTO cu : hs.getClubUsedList()) {
                     cu.setHoleStatID(holeStat.getHoleStatID());
                 }
-                addClubsUsed(hs.getClubUsedList());
+                dto.setClubUsedList(editClubsUsed(hs.getClubUsedList()));
             }
-            resp.getHoleStatList().add(new HoleStatDTO(holeStat));
-            log.log(Level.INFO, "*** HoleStat added or updated, holeNumber: {0}", hs.getHole().getHoleNumber());
 
         } catch (Exception e) {
             log.log(Level.SEVERE, "Failed", e);
             throw new DataException();
         }
-
-        return resp;
+        return dto;
     }
 
-    public ResponseDTO addClubsUsed(List<ClubUsedDTO> list) throws DataException {
-        ResponseDTO resp = new ResponseDTO();
+    private List<ClubUsedDTO> editClubsUsed(List<ClubUsedDTO> list) throws DataException {
+        List<ClubUsedDTO> clubUsedList = new ArrayList<>();
         try {
             for (ClubUsedDTO cu : list) {
                 ClubUsed clubUsed = new ClubUsed();
                 if (cu.getClubUsedID() != null) {
                     clubUsed = em.find(ClubUsed.class, cu.getClubUsedID());
+                } else {
+                    clubUsed.setHoleStat(em.find(HoleStat.class, cu.getHoleStatID()));
                 }
-                clubUsed.setHoleStat(em.find(HoleStat.class, cu.getHoleStatID()));
                 clubUsed.setClub(em.find(Club.class, cu.getClub().getClubID()));
                 clubUsed.setShotShape(em.find(ShotShape.class, cu.getShotShape().getShotShapeID()));
                 if (cu.getClubUsedID() == null) {
                     em.persist(clubUsed);
                     em.flush();
+                    log.log(Level.INFO, "&&&& ClubUsed persisted: {0}", cu.getClub().getClubName());
                 } else {
                     em.merge(clubUsed);
+                    log.log(Level.INFO, "--------------------- ClubUsed merged: {0}", cu.getClub().getClubName());
                 }
 
-                log.log(Level.INFO, "&&&& ClubUsed added or updated: {0}", cu.getClub().getClubName());
+                clubUsedList.add(new ClubUsedDTO(clubUsed));
+
             }
 
         } catch (Exception e) {
             log.log(Level.SEVERE, "Failed", e);
             throw new DataException();
         }
-        return resp;
+        return clubUsedList;
     }
 
     public ResponseDTO addCoach(Integer playerID, Integer coachID) throws DataException {
         ResponseDTO resp = new ResponseDTO();
         try {
+            Query q = em.createNamedQuery("CoachPlayer.findCoachesByPlayer", Coach.class);
+            q.setParameter("playerID", playerID);
+            List<Coach> cList = q.getResultList();
+            boolean isFound = false;
+
+            for (Coach coach : cList) {
+                if (Objects.equals(coach.getCoachID(), coachID)) {
+                    isFound = true;
+                    break;
+                }
+            }
+            if (isFound) {
+                resp.setMessage("Coach already exists for Player");
+                return resp;
+            }
             CoachPlayer cp = new CoachPlayer();
             cp.setCoach(em.find(Coach.class, coachID));
             cp.setPlayer(em.find(Player.class, playerID));
@@ -351,14 +489,14 @@ public class PlayerUtil {
                     log.log(Level.SEVERE, "Practice Session has been closed");
                 }
             }
-            
+
         } catch (Exception e) {
             log.log(Level.SEVERE, "Failed", e);
             throw new DataException();
         }
 
     }
-    
+
     public ResponseDTO closePracticeSession(Integer practiceSessionID, Integer playerID) throws DataException {
         ResponseDTO resp = new ResponseDTO();
         try {
@@ -366,19 +504,19 @@ public class PlayerUtil {
             ps.setClosed(Boolean.TRUE);
             em.merge(ps);
             em.flush();
-         
+
             log.log(Level.INFO, "Practice Session closed");
-            
+
             resp.setPracticeSessionList(getPlayerData(playerID).getPracticeSessionList());
             resp.setMessage("Practice Session closed");
-            
+
         } catch (Exception e) {
             log.log(Level.SEVERE, "Failed", e);
             throw new DataException();
         }
         return resp;
     }
-    
+
     public ResponseDTO getPlayerSessionsWithinDays(Integer playerID, Integer days) throws DataException {
         ResponseDTO resp = new ResponseDTO();
         try {
@@ -387,8 +525,8 @@ public class PlayerUtil {
             }
             DateTime now = new DateTime();
             DateTime then = now.minusDays(days);
-            
-            Query q = em.createNamedQuery("PracticeSession.getPlayerSessionsInPeriod",PracticeSession.class);
+
+            Query q = em.createNamedQuery("PracticeSession.getPlayerSessionsInPeriod", PracticeSession.class);
             q.setParameter("playerID", playerID);
             q.setParameter("fromDate", then.toDate());
             q.setParameter("toDate", now.toDate());
@@ -397,9 +535,9 @@ public class PlayerUtil {
                 resp.getPracticeSessionList().add(new PracticeSessionDTO(ps));
             }
             resp.setMessage("PracticeSessions in period listed");
-            
+
         } catch (Exception e) {
-            log.log(Level.SEVERE, e.getMessage(),e);
+            log.log(Level.SEVERE, e.getMessage(), e);
             throw new DataException();
         }
         return resp;

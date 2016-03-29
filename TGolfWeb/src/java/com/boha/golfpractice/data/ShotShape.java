@@ -17,10 +17,10 @@ import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
@@ -35,6 +35,9 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "ShotShape.findByShape", query = "SELECT s FROM ShotShape s WHERE s.shape = :shape")})
 public class ShotShape implements Serializable {
 
+    @OneToMany(mappedBy = "shotShape", fetch = FetchType.EAGER)
+    private List<ClubUsed> clubUsedList;
+
     
     private static final long serialVersionUID = 1L;
     @Id
@@ -45,8 +48,7 @@ public class ShotShape implements Serializable {
     @Size(max = 100)
     @Column(name = "shape")
     private String shape;
-    @OneToOne(mappedBy = "shotShape", fetch = FetchType.EAGER)
-    private ClubUsed clubUsed;
+    
 
     public ShotShape() {
     }
@@ -78,14 +80,6 @@ public class ShotShape implements Serializable {
         return hash;
     }
 
-    public ClubUsed getClubUsed() {
-        return clubUsed;
-    }
-
-    public void setClubUsed(ClubUsed clubUsed) {
-        this.clubUsed = clubUsed;
-    }
-
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
@@ -102,6 +96,15 @@ public class ShotShape implements Serializable {
     @Override
     public String toString() {
         return "com.boha.golfpractice.data.ShotShape[ shotShapeID=" + shotShapeID + " ]";
+    }
+
+    @XmlTransient
+    public List<ClubUsed> getClubUsedList() {
+        return clubUsedList;
+    }
+
+    public void setClubUsedList(List<ClubUsed> clubUsedList) {
+        this.clubUsedList = clubUsedList;
     }
 
     

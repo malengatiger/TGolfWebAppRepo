@@ -33,6 +33,9 @@ import javax.xml.bind.annotation.XmlTransient;
 @Table(name = "holeStat")
 @XmlRootElement
 @NamedQueries({
+    @NamedQuery(name = "HoleStat.findByCoach", 
+            query = "SELECT h FROM HoleStat h, CoachPlayer c where h.practiceSession.player.playerID = c.player.playerID and c.coach.coachID = :coachID order by h.practiceSession.practiceSessionID, h.hole.holeNumber"),
+    
     @NamedQuery(name = "HoleStat.findByPlayer", 
             query = "SELECT h FROM HoleStat h where h.practiceSession.player.playerID = :playerID order by h.practiceSession.practiceSessionID"),
     

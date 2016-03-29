@@ -42,6 +42,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 })
 public class CoachPlayer implements Serializable {
 
+    @Column(name = "activeFlag")
+    private Boolean activeFlag;
+
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -122,6 +125,14 @@ public class CoachPlayer implements Serializable {
     @Override
     public String toString() {
         return "com.boha.golfpractice.data.CoachPlayer[ coachPlayer=" + coachPlayerID + " ]";
+    }
+
+    public Boolean getActiveFlag() {
+        return activeFlag;
+    }
+
+    public void setActiveFlag(Boolean activeFlag) {
+        this.activeFlag = activeFlag;
     }
     
 }

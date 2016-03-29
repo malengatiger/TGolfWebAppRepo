@@ -23,8 +23,10 @@ public class CoachDTO implements Serializable {
     private String email;
     private String cellphone;
     private String pin;
+    private String photoUrl;
     private Long dateRegistered;
     private List<CoachPlayerDTO> coachPlayerList;
+    private List<PracticeSessionDTO> practiceSessionList;
 
     public CoachDTO() {
     }
@@ -40,7 +42,24 @@ public class CoachDTO implements Serializable {
         this.email = a.getEmail();
         this.cellphone = a.getCellphone();
         this.pin = a.getPin();
+        this.photoUrl = a.getPhotoUrl();
         this.dateRegistered = a.getDateRegistered().getTime();
+    }
+
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    public List<PracticeSessionDTO> getPracticeSessionList() {
+        return practiceSessionList;
+    }
+
+    public void setPracticeSessionList(List<PracticeSessionDTO> practiceSessionList) {
+        this.practiceSessionList = practiceSessionList;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
     }
 
     public Integer getCoachID() {

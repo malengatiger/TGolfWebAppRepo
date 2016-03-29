@@ -20,17 +20,17 @@ public class TrafficCop {
         resp.setStatusCode(0);
 
         switch (req.getRequestType()) {
-            case RequestDTO.REGISTER_COACH:
-                resp = coachUtil.register(req.getCoach());
+            case RequestDTO.EDIT_COACH:
+                resp = coachUtil.update(req.getCoach());
                 break;
-            case RequestDTO.REGISTER_PLAYER:
-                resp = playerUtil.register(req.getPlayer());
+            case RequestDTO.EDIT_PLAYER:
+                resp = playerUtil.editPlayer(req.getPlayer(), req.getCoachID());
                 break;
             case RequestDTO.SIGN_IN_COACH:
-                resp = coachUtil.signIn(req.getEmail(), req.getPassword());
+                resp = coachUtil.signIn(req.getEmail(), req.getPassword(), req.getIsExistingUser());
                 break;
             case RequestDTO.SIGN_IN_PLAYER:
-                resp = playerUtil.signIn(req.getEmail(), req.getPassword());
+                resp = playerUtil.signIn(req.getEmail(), req.getPassword(), req.getIsExistingUser());
                 break;
             case RequestDTO.ADD_GOLF_COURSE:
                 resp = dataUtil.addGolfCourse(req.getGolfCourse());
@@ -39,16 +39,17 @@ public class TrafficCop {
                 resp = dataUtil.addHole(req.getHole());
                 break;
             case RequestDTO.ADD_PRACTICE_SESSION:
-                resp = playerUtil.addPracticeSession(req.getPracticeSession());
+                resp = playerUtil.editPracticeSession(req.getPracticeSession());
                 break;
+
             
-            case RequestDTO.ADD_HOLE_STAT:
-                resp = playerUtil.addHoleStat(req.getHoleStat());
+            case RequestDTO.ADD_VIDEO:
+                resp = playerUtil.addVideo(req.getVideoUpload());
                 break;
             case RequestDTO.GET_COACH_DATA:
-                resp = coachUtil.getCoachData(req.getCoachID());
+                resp = coachUtil.getPlayers(req.getCoachID());
                 break;
-                case RequestDTO.GET_SESSIONS_IN_PERIOD:
+            case RequestDTO.GET_SESSIONS_IN_PERIOD:
                 resp = playerUtil.getPlayerSessionsWithinDays(req.getPlayerID(), req.getDays());
                 break;
             case RequestDTO.GET_PLAYER_DATA:
@@ -60,8 +61,8 @@ public class TrafficCop {
             case RequestDTO.GET_ALL_COACHES:
                 resp = dataUtil.getAllCoaches();
                 break;
-                case RequestDTO.CLOSE_PRACTICE_SESSION:
-                resp = playerUtil.closePracticeSession(req.getPracticeSessionID(),req.getPlayerID());
+            case RequestDTO.CLOSE_PRACTICE_SESSION:
+                resp = playerUtil.closePracticeSession(req.getPracticeSessionID(), req.getPlayerID());
                 break;
             case RequestDTO.GET_GOLF_COURSES_BY_LOCATION:
                 resp = workerBee.getGolfCoursesWithinRadius(

@@ -16,13 +16,13 @@ import javax.xml.bind.annotation.XmlTransient;
  *
  * @author aubreymalabie
  */
-public class GolfCourseDTO implements Serializable {
+public class GolfCourseDTO implements Serializable, Comparable<GolfCourseDTO> {
 
     private static final long serialVersionUID = 1L;
     private Integer golfCourseID, provinceID;
     private String golfCourseName;
     private Double latitude;
-    private Double longitude;
+    private Double longitude, distance;
     private String email;
     private String cellphone;
     private List<HoleDTO> holeList;
@@ -51,6 +51,14 @@ public class GolfCourseDTO implements Serializable {
 
     public Integer getGolfCourseID() {
         return golfCourseID;
+    }
+
+    public Double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(Double distance) {
+        this.distance = distance;
     }
 
     public void setGolfCourseID(Integer golfCourseID) {
@@ -152,6 +160,23 @@ public class GolfCourseDTO implements Serializable {
     @Override
     public String toString() {
         return "com.boha.golfpractice.data.GolfCourse[ golfCourseID=" + golfCourseID + " ]";
+    }
+
+    @Override
+    public int compareTo(GolfCourseDTO o) {
+        if (this.distance == null || o.distance == null) {
+            return 0;
+        }
+        if (this.distance < o.distance) {
+            return -1;
+        }
+        if (this.distance > o.distance) {
+            return 1;
+        }
+        
+        
+        
+        return 0;
     }
     
 }

@@ -6,7 +6,9 @@
 package com.boha.golfpractice.dto;
 
 import com.boha.golfpractice.data.Player;
+import com.boha.golfpractice.data.PracticeSession;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -23,12 +25,22 @@ public class PlayerDTO implements Serializable {
     private String email;
     private String cellphone;
     private String pin;
+    private Short gender;
+    private String photoUrl;
     private Long dateRegistered;
     private List<VideoUploadDTO> videoUploadList;
     private List<PracticeSessionDTO> practiceSessionList;
     private List<CoachPlayerDTO> coachPlayerList;
 
     public PlayerDTO() {
+    }
+
+    public Short getGender() {
+        return gender;
+    }
+
+    public void setGender(Short gender) {
+        this.gender = gender;
     }
 
     public PlayerDTO(Integer playerID) {
@@ -42,7 +54,23 @@ public class PlayerDTO implements Serializable {
         this.email = a.getEmail();
         this.cellphone = a.getCellphone();
         this.pin = a.getPin();
+        this.photoUrl = a.getPhotoUrl();
         this.dateRegistered = a.getDateRegistered().getTime();
+        
+        if (a.getPracticeSessionList() != null) {
+            practiceSessionList = new ArrayList<>();
+            for (PracticeSession ps: a.getPracticeSessionList()) {
+                practiceSessionList.add(new PracticeSessionDTO(ps));
+            }
+        }
+    }
+
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
     }
 
     public Integer getPlayerID() {
@@ -103,6 +131,9 @@ public class PlayerDTO implements Serializable {
 
     @XmlTransient
     public List<VideoUploadDTO> getVideoUploadList() {
+        if (videoUploadList == null) {
+            videoUploadList = new ArrayList<>();
+        }
         return videoUploadList;
     }
 
@@ -112,6 +143,9 @@ public class PlayerDTO implements Serializable {
 
     @XmlTransient
     public List<PracticeSessionDTO> getPracticeSessionList() {
+        if (practiceSessionList == null) {
+            practiceSessionList = new ArrayList<>();
+        }
         return practiceSessionList;
     }
 

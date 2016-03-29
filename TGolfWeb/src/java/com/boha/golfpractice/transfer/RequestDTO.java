@@ -11,6 +11,7 @@ import com.boha.golfpractice.dto.HoleDTO;
 import com.boha.golfpractice.dto.HoleStatDTO;
 import com.boha.golfpractice.dto.PlayerDTO;
 import com.boha.golfpractice.dto.PracticeSessionDTO;
+import com.boha.golfpractice.dto.VideoUploadDTO;
 
 /**
  *
@@ -19,8 +20,8 @@ import com.boha.golfpractice.dto.PracticeSessionDTO;
 public class RequestDTO {
     //call identifiers
     public static final int 
-            REGISTER_PLAYER = 1,
-            REGISTER_COACH = 2,
+            EDIT_PLAYER = 1,
+            EDIT_COACH = 2,
             SIGN_IN_PLAYER = 3,
             SIGN_IN_COACH = 4,
             
@@ -29,6 +30,7 @@ public class RequestDTO {
             ADD_PRACTICE_SESSION = 14,
             ADD_HOLE_STAT = 15,
             CLOSE_PRACTICE_SESSION = 16,
+            ADD_VIDEO = 17,
                    
             GET_PLAYER_DATA = 21,
             GET_COACH_DATA = 22,
@@ -50,12 +52,29 @@ public class RequestDTO {
     private String email, password;
     private PlayerDTO player;
     private CoachDTO coach;
+    private VideoUploadDTO videoUpload;
     private GolfCourseDTO golfCourse;
     private PracticeSessionDTO practiceSession;
     private HoleStatDTO holeStat;
     private HoleDTO hole;
-
+    private Boolean isExistingUser = false;
     private boolean zipResponse;
+
+    public Boolean getIsExistingUser() {
+        return isExistingUser;
+    }
+
+    public void setIsExistingUser(Boolean isExistingUser) {
+        this.isExistingUser = isExistingUser;
+    }
+
+    public VideoUploadDTO getVideoUpload() {
+        return videoUpload;
+    }
+
+    public void setVideoUpload(VideoUploadDTO videoUpload) {
+        this.videoUpload = videoUpload;
+    }
 
     public Integer getDays() {
         return days;

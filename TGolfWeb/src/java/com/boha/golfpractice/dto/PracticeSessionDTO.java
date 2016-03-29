@@ -5,6 +5,7 @@
  */
 package com.boha.golfpractice.dto;
 
+import com.boha.golfpractice.data.HoleStat;
 import com.boha.golfpractice.data.PracticeSession;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ public class PracticeSessionDTO implements Serializable {
     private String golfCourseName;
     private List<HoleStatDTO> holeStatList;
     private List<VideoUploadDTO> videoUploadList;
-    private Integer playerID;
+    private Integer playerID, coachID;
     private Integer golfCourseID;
     private Integer totalMistakes;
     private GolfCourseDTO golfCourse;
@@ -55,11 +56,23 @@ public class PracticeSessionDTO implements Serializable {
         if (a.getPlayer() != null) {
             playerID = a.getPlayer().getPlayerID();
         }
+        if (a.getCoach()!= null) {
+            coachID = a.getCoach().getCoachID();
+        }
         if (a.getGolfCourse() != null) {
             golfCourseName = a.getGolfCourse().getGolfCourseName();
             golfCourseID = a.getGolfCourse().getGolfCourseID();
             golfCourse = new GolfCourseDTO(a.getGolfCourse());
         }
+        
+    }
+
+    public Integer getCoachID() {
+        return coachID;
+    }
+
+    public void setCoachID(Integer coachID) {
+        this.coachID = coachID;
     }
 
     public Integer getTotalMistakes() {

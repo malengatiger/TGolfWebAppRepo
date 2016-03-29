@@ -21,6 +21,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -36,6 +37,9 @@ import javax.xml.bind.annotation.XmlTransient;
 @Table(name = "practiceSession")
 @XmlRootElement
 @NamedQueries({
+    @NamedQuery(name = "PracticeSession.findByPlayerList", 
+            query = "SELECT p FROM PracticeSession p where p.player.playerID in :list order by p.player.playerID, p.sessionDate desc"),
+    
     @NamedQuery(name = "PracticeSession.findByPlayer", 
             query = "SELECT p FROM PracticeSession p where p.player.playerID = :playerID order by p.sessionDate desc"),
     
@@ -48,6 +52,10 @@ import javax.xml.bind.annotation.XmlTransient;
     
 })
 public class PracticeSession implements Serializable {
+
+    @JoinColumn(name = "coachID", referencedColumnName = "coachID")
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Coach coach;
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -77,6 +85,7 @@ public class PracticeSession implements Serializable {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "practiceSession", fetch = FetchType.EAGER)
     private List<HoleStat> holeStatList;
     @OneToMany(mappedBy = "practiceSession", fetch = FetchType.EAGER)
+    @OrderBy("dateTaken desc")
     private List<VideoUpload> videoUploadList;
     @JoinColumn(name = "playerID", referencedColumnName = "playerID")
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
@@ -229,5 +238,14 @@ public class PracticeSession implements Serializable {
     public String toString() {
         return "com.boha.golfpractice.data.PracticeSession[ practiceSessionID=" + practiceSessionID + " ]";
     }
+
+    public Coach getCoach() {
+        return coach;
+    }
+
+    public void setCoach(Coach coach) {
+        this.coach = coach;
+    }
+
     
 }

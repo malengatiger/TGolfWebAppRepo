@@ -19,6 +19,7 @@ public class CoachPlayerDTO implements Serializable {
     private Long dateRegistered;
     private Integer coachID;
     private PlayerDTO player;
+    private Boolean activeFlag;
 
     public CoachPlayerDTO() {
     }
@@ -26,12 +27,21 @@ public class CoachPlayerDTO implements Serializable {
     public CoachPlayerDTO(CoachPlayer a) {
         this.coachPlayerID = a.getCoachPlayerID();
         dateRegistered = a.getDateRegistered().getTime();
+        activeFlag = a.getActiveFlag();
         if (a.getCoach() != null) {
             coachID = a.getCoach().getCoachID();
         }
         if (a.getPlayer() != null) {
             player = new PlayerDTO(a.getPlayer());
         }
+    }
+
+    public Boolean getActiveFlag() {
+        return activeFlag;
+    }
+
+    public void setActiveFlag(Boolean activeFlag) {
+        this.activeFlag = activeFlag;
     }
 
     public Integer getCoachPlayerID() {
